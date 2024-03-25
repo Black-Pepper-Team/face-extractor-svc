@@ -61,7 +61,7 @@ def extract_features() -> None:
     
     # Creating connector with the issuer service
     connector = IssuerConnector(cfg.issuer_base_url, cfg.issuer_id)
-    
+    logging.error('3')
     # Decoding the image and processing it
     try:
         img = decode_base64(image_base64)
@@ -81,8 +81,7 @@ def extract_features() -> None:
         is_revoke = closest_claim is not None
         
         if is_revoke and closest_claim['is_submitted']:
-            connector.revoke_claim(closest_claim['claim_id'])
-            
+            connector.revoke_claim(closest_claim['claim_id']) 
     except Exception as exception:
         logging.error(f"Failed to process the image: {exception}")
         return jsonify_error(errs.INTERNAL_ERROR)
@@ -122,7 +121,7 @@ def extract_features() -> None:
         str_to_update = emb_string if not is_revoke else closest_claim['vector']
         q = Claim.update(is_submitted=True, claim_id=claim_id).where(Claim.vector == str_to_update)
         q.execute()
-        
+        logging.error('7')
         # TODO: make in a single update
         if is_revoke:
             q = Claim.update(user_id=user_id, 
@@ -131,20 +130,22 @@ def extract_features() -> None:
                 pk=public_key).where(Claim.vector == closest_claim['vector'])
             q.execute()
         
-        response_user_id = user_id if is_revoke else None
+        response_user_id = None
+        if is_revoke:
+            response_user_id = closest_claim['user_id']
         return form_extract_response(emb_string, claim_id=claim_id, user_id=response_user_id)
     except Exception as exception:
         logging.error(f"Failed while finalizing the request: {exception}")
         return jsonify_error(errs.INTERNAL_ERROR)
     
-@app.route("/integrations/face-extractor-svc/pk-from-image", methods=["GET"])
+@app.route("/integrations/face-extractor-svc/pk-from-image", methods=["POST"])
 def get_public_key_from_image() -> None:
     def jsonify_error(err: errs.ErrorResponse) -> Response:
         json_err, status_code = err
         return flask.jsonify(json_err), status_code
     
     # Returning an error if got a wrong method
-    if flask.request.method != "GET":
+    if flask.request.method != "POST":
         return jsonify_error(errs.INVALID_METHOD)
     
     # Asserting that the request has the necessary data
@@ -187,7 +188,7 @@ def get_public_key_from_image() -> None:
         logging.error(f"Failed to process the image: {exception}")
         return jsonify_error(errs.INTERNAL_ERROR)
 
-    return form_pk_response(closest_claim['pk'])
+    return form_pk_response(closest_claim['pk'], closest_claim['metadata'], closest_claim['user_id'])
         
 def form_extract_response(embedding: DiscretizedFeatureVector, claim_id: int, user_id: str = None) -> Response:
     """
@@ -208,11 +209,11 @@ def form_extract_response(embedding: DiscretizedFeatureVector, claim_id: int, us
     if user_id is not None:
         # Adding user id to the response
         response["data"]["attributes"]["user_id"] = user_id
+
+    return response, 200
     
-    return flask.jsonify(response), 200
-    
-    
-def form_pk_response(public_key: str) -> Response:
+ 
+def form_pk_response(public_key: str, metadata: str, user_id: str) -> Response:
     """
     Formats the response to be returned by the API.
     """
@@ -222,7 +223,9 @@ def form_pk_response(public_key: str) -> Response:
             "id" : 1,
             "type": "pk",
             "attributes": {
-                "public_key": public_key
+                "public_key": public_key,
+                "metadata": metadata,
+                "user_id": user_id
             }
         }
     }), 200

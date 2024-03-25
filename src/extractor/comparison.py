@@ -15,4 +15,4 @@ def is_same_identity(embedding_1: FeatureVector, embedding_2: FeatureVector) -> 
     Checks if two embeddings belong to the same person
     """
     
-    return get_distance_squared(embedding_1, embedding_2) < THRESHOLD**2
+    return get_distance_squared(embedding_1, embedding_2) < THRESHOLD

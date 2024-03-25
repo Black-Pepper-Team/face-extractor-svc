@@ -10,7 +10,7 @@ INTERNAL_ERROR: ErrorResponse = ({
                 "meta": "Contact Dima and tell him to fix it"
             }
         ]
-    }, 405)
+    }, 500)
 
 INVALID_METHOD: ErrorResponse = ({
         "errors": [
@@ -50,7 +50,7 @@ ACCOUNT_DOES_NOT_EXIST: ErrorResponse = ({
             "meta": "Account does not exist"
         }
     ]
-}, 400)
+}, 403)
 
 NO_FACE_FOUND: ErrorResponse = ({
     "errors": [
@@ -60,7 +60,7 @@ NO_FACE_FOUND: ErrorResponse = ({
                 "meta": "No face found in the image"
             }
         ]
-    }, 400)
+    }, 403)
 
 TOO_MANY_PEOPLE: ErrorResponse = ({
         "errors": [
@@ -70,5 +70,5 @@ TOO_MANY_PEOPLE: ErrorResponse = ({
                 "meta": "Too many people found in the image"
             }
         ]
-    }, 400)
+    }, 403)
 
