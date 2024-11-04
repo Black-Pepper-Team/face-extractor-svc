@@ -27,6 +27,10 @@ class EnvConfig:
             self._port = EnvConfig.DEFAULT_PORT
             
         self._issuer_id = os.getenv('ISSUER_ID')
+        self._eth_provider = os.getenv('ETHPROVIDER')
+        self._private_key = os.getenv('PRIVATE_KEY')
+        self._oracle_address = os.getenv('ORACLE_ADDRESS')
+        self._contest_address = os.getenv('CONTEST_ADDRESS')
         
     @property
     def issuer_base_url(self) -> str:
@@ -51,3 +55,19 @@ class EnvConfig:
         """
         
         return self._port
+
+    @property
+    def eth_provider(self) -> str:
+        return self._eth_provider
+
+    @property
+    def private_key(self) -> str:
+        return self._private_key
+
+    @property
+    def oracle_address(self) -> str:
+        return self._oracle_address
+
+    @property
+    def contest_address(self) -> str:
+        return self._contest_address

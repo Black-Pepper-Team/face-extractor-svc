@@ -72,3 +72,12 @@ TOO_MANY_PEOPLE: ErrorResponse = ({
         ]
     }, 403)
 
+INVALID_IMAGE_UPLOADED: ErrorResponse = ({
+    "errors": [
+        {
+            "code": "400",
+            "title": "Invalid image",
+            "meta": "User uploaded invalid image format"
+        }
+    ]
+}, 400)
